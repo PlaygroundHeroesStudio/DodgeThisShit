@@ -1,9 +1,12 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Shaders\Polarise.shader">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Player.cs">
     <Files>
-      <File FileName="Assets\Shaders\Polarise.shader" Line="59" Column="2" />
-      <File FileName="Assets\Shaders\Puddle.shader" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\MainMenu.cs" Line="11" Column="54" />
+      <File FileName="Assets\Scripts\Player.cs" Line="194" Column="46" />
+      <File FileName="Assets\Scripts\ObstacleSpawner.cs" Line="57" Column="3" />
+      <File FileName="Assets\Scripts\Projectile.cs" Line="24" Column="32" />
+      <File FileName="Assets\Scripts\TransformObject.cs" Line="16" Column="2" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

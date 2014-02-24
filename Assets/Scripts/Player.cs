@@ -14,7 +14,7 @@ public enum DodgeDir
 }
 
 [RequireComponent(typeof(Rigidbody))]
-public class Player : MonoBehaviour
+public class Player : TransformObject
 {
 	private enum ControlTypes
 	{
@@ -23,8 +23,6 @@ public class Player : MonoBehaviour
 	}
 
 	public static Player Singleton = null;
-
-	private Transform Tr = null;
 
 	private Rigidbody Rigid = null;
 
@@ -64,23 +62,32 @@ public class Player : MonoBehaviour
 
 	public float Score = 0.0f;
 
+	public float FireDelay = 0.25f;
+
+	float FireTimer = 0.0f;
+
 	public KeyCode KeyUp = KeyCode.W;
 	public KeyCode KeyDown = KeyCode.S;
 	public KeyCode KeyLeft = KeyCode.A;
 	public KeyCode KeyRight = KeyCode.D;
+	public KeyCode KeyShoot = KeyCode.Space;
+
+	public Projectile Proj = null;
+
+	public Transform ProjectileParent = null;
+
+	Projectile[] Projectiles = new Projectile[20];
 
 	private ControlTypes CtrlType = ControlTypes.Orbit;
 
 	public DodgeDir Dir { get; set; }
 
-	public Vector3 localPosition { get { return Tr.localPosition; } set { Tr.localPosition = value; } }
-	public Vector3 position { get { return Tr.position; } set { Tr.position = value; } }
-
-	void Awake()
+	protected override void Awake()
 	{
 		Singleton = this;
 
-		Tr = transform;
+		base.Awake();
+
 		Rigid = rigidbody;
 
 		_Health = MaxHealth;
@@ -96,17 +103,22 @@ public class Player : MonoBehaviour
 			OrbitControls();
 
 		Score += MoveSpeed * Time.deltaTime;
+
+		FireTimer += Time.deltaTime;
+
+		if (FireTimer > FireDelay)
+		{
+			if (Input.GetKey(KeyShoot))
+				Shoot();
+			else
+				FireTimer = FireDelay;
+		}
 	}
 
-	void OrbitControls()
+	void FixedUpdate()
 	{
-		if (Input.GetKey(KeyLeft))
-			Angle -= OrbitSpeed * Time.deltaTime;
-		else if (Input.GetKey(KeyRight))
-			Angle += OrbitSpeed * Time.deltaTime;
-		
 		Quaternion Rot = Quaternion.AngleAxis(Angle, Vector3.forward);
-		Vector3 Pos = Rot * new Vector3(0.0f, -Radius, Tr.localPosition.z + MoveSpeed * Time.deltaTime);
+		Vector3 Pos = Rot * new Vector3(0.0f, -Radius, position.z + MoveSpeed * Time.fixedDeltaTime);
 		
 		Transform Parent = Tr.parent;
 		
@@ -118,6 +130,14 @@ public class Player : MonoBehaviour
 		
 		Rigid.MoveRotation(Rot);
 		Rigid.MovePosition(Pos);
+	}
+
+	void OrbitControls()
+	{
+		if (Input.GetKey(KeyLeft))
+			Angle -= OrbitSpeed * Time.deltaTime;
+		else if (Input.GetKey(KeyRight))
+			Angle += OrbitSpeed * Time.deltaTime;
 	}
 
 	void EightDirControls()
@@ -164,11 +184,35 @@ public class Player : MonoBehaviour
 		Tr.localPosition = Temp;
 	}
 
+	void Shoot()
+	{
+		for (int P = 0; P < Projectiles.Length; P++)
+		{
+			if (Projectiles[P] == null)
+			{
+				Projectiles[P] = (Projectile)Instantiate(Proj, Tr.position + Tr.forward, Quaternion.identity);
+				Projectiles[P].parent = ProjectileParent;
+				FireTimer -= FireDelay;
+				break;
+			}
+
+			if (!Projectiles[P].IsActive)
+			{
+				Projectiles[P].position = Tr.position + Tr.forward;
+				Projectiles[P].IsActive = true;
+				FireTimer -= FireDelay;
+				break;
+			}
+		}
+	}
+
 	void OnTriggerEnter(Collider C)
 	{
-		if (C.GetComponent<Obstacle>() != null)
+		Obstacle O = C.GetComponent<Obstacle>();
+
+		if (O != null)
 		{
-			C.gameObject.SetActive(false);
+			O.IsActive = false;
 			
 			Health--;
 		}
