@@ -79,7 +79,6 @@ public class Player : MonoBehaviour
 	void Awake()
 	{
 		Singleton = this;
-		DontDestroyOnLoad(this);
 
 		Tr = transform;
 		Rigid = rigidbody;
@@ -178,15 +177,35 @@ public class Player : MonoBehaviour
 	void OnGUI()
 	{
 		GUI.skin.box.alignment = TextAnchor.MiddleLeft;
+		GUI.skin.box.fontSize = (int)(Screen.width * 0.025f);
 
-		GUI.Box(new Rect(Screen.width * 0.05f, Screen.height * 0.05f, 80, 40), string.Concat("Health: ", _Health.ToString(), "\nScore: ", Score.ToString("0")));
+		GUI.Box(new Rect(Screen.width * 0.05f, Screen.height * 0.05f, Screen.width * 0.2f, Screen.height * 0.15f), string.Concat("Health: ", _Health.ToString(), "\nScore: ", Score.ToString("0")));
 
-		if (Health <= 0 && GUI.Button(new Rect(Screen.width * 0.5f - 100, Screen.height * 0.5f - 40, 200, 80), "Game Over\nRetry"))
+		if (Health <= 0)
 		{
-			Score = 0.0f;
-			Health = MaxHealth;
-			Application.LoadLevel(Application.loadedLevel);
-			Time.timeScale = 1.0f;
+			GUI.skin.box.alignment = TextAnchor.MiddleCenter;
+
+			GUI.Box(new Rect(Screen.width * 0.5f - 200, Screen.height * 0.5f - 220, 400, 100), "GAME OVER");
+
+			if ((int)Score > PlayerPrefs.GetInt("HighScore", 0))
+				GUI.Box(new Rect(Screen.width * 0.5f - 100, Screen.height * 0.5f - 100, 200, 40), "New High Score!");
+
+			if (GUI.Button(new Rect(Screen.width * 0.5f - 100, Screen.height * 0.5f - 40, 200, 80), "Retry"))
+			{
+				if (Score > PlayerPrefs.GetInt("HighScore", 0))
+					PlayerPrefs.SetInt("HighScore", (int)Score);
+
+				Score = 0.0f;
+				Health = MaxHealth;
+				Application.LoadLevel(Application.loadedLevel);
+				Time.timeScale = 1.0f;
+			}
+			
+			if (GUI.Button(new Rect(Screen.width * 0.5f - 100, Screen.height * 0.5f + 60, 200, 80), "Main Menu"))
+			{
+				Application.LoadLevel("Main Menu");
+				Time.timeScale = 1.0f;
+			}
 		}
 	}
 

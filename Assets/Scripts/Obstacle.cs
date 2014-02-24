@@ -15,6 +15,8 @@ public class Obstacle : MonoBehaviour
 	
 	public Quaternion localRotation { get { return Tr.localRotation; } set { Tr.localRotation = value; } }
 	public Quaternion rotation { get { return Tr.rotation; } set { Tr.rotation = value; } }
+
+	public Transform parent { get { return Tr.parent; } set { Tr.parent = value; } }
 	
 	protected virtual void Awake()
 	{

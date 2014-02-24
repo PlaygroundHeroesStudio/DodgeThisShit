@@ -1,8 +1,9 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Player.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Shaders\Polarise.shader">
     <Files>
-      <File FileName="Assets\Scripts\Player.cs" Line="186" Column="17" />
+      <File FileName="Assets\Shaders\Polarise.shader" Line="59" Column="2" />
+      <File FileName="Assets\Shaders\Puddle.shader" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

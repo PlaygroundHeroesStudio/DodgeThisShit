@@ -33,8 +33,8 @@
 			float CTime = cos(_Time.y * _Speed);
 			float STime = sin(_Time.y * _Speed);
 			
-			float2 UV1 = IN.uv_MainTex + STime * Length;
-			float2 UV2 = IN.uv_MainTex + float2(-STime * 0.5f, CTime * 0.25f) * Length;
+			float2 UV1 = IN.uv_MainTex + _Time.x;//STime * Length;
+			float2 UV2 = IN.uv_MainTex + -_Time.x;//float2(-STime * 0.5f, CTime * 0.25f) * Length;
 			
 			half4 c = tex2D(_MainTex, UV1) * tex2D(_MainTex, UV2) * _Color;
 			o.Albedo = c.rgb;

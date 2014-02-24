@@ -9,6 +9,8 @@ public class ObstacleSpawner : MonoBehaviour
 
 	private float SpawnTimer = 0.0f;
 
+	public Transform ObstacleParent = null;
+
 	public Obstacle[] SpawnObjects = null;
 
 	private List<Obstacle> Spawned = new List<Obstacle>();
@@ -39,6 +41,8 @@ public class ObstacleSpawner : MonoBehaviour
 				if (Spawning.SpawnAtCentre)
 					foreach (Obstacle O in Spawning.GetComponentsInChildren<Obstacle>())
 						O.localPosition = new Vector3(O.localPosition.x * Radius, O.localPosition.y * Radius, O.localPosition.z);
+
+				Spawning.parent = ObstacleParent;
 
 				Spawned.Add(Spawning);
 			}

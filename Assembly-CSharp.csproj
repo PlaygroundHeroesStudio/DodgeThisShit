@@ -47,9 +47,11 @@
   </ItemGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\Cam.cs" />
+     <Compile Include="Assets\Scripts\MainMenu.cs" />
      <Compile Include="Assets\Scripts\Obstacle.cs" />
      <Compile Include="Assets\Scripts\ObstacleSpawner.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
+     <None Include="Assets\Shaders\Polarise.shader" />
      <None Include="Assets\Shaders\DistanceDarken.shader" />
      <None Include="Assets\Shaders\Puddle.shader" />
   </ItemGroup>
