@@ -1,27 +1,8 @@
 ﻿using UnityEngine;
 
-public enum DodgeDir
-{
-	None = 0,
-	Up = 1 << 0,
-	Down = 1 << 1,
-	Left = 1 << 2,
-	Right = 1 << 3,
-	UpLeft = Up | Left,
-	DownLeft = Down | Left,
-	UpRight = Up | Right,
-	DownRight = Down | Right
-}
-
 [RequireComponent(typeof(Rigidbody))]
 public class Player : TransformObject
 {
-	private enum ControlTypes
-	{
-		EightDir,
-		Orbit
-	}
-
 	public static Player Singleton = null;
 
 	private Rigidbody Rigid = null;
@@ -66,10 +47,6 @@ public class Player : TransformObject
 
 	float FireTimer = 0.0f;
 
-	public KeyCode KeyUp = KeyCode.W;
-	public KeyCode KeyDown = KeyCode.S;
-	public KeyCode KeyLeft = KeyCode.A;
-	public KeyCode KeyRight = KeyCode.D;
 	public KeyCode KeyShoot = KeyCode.Space;
 
 	public Projectile Proj = null;
@@ -78,9 +55,9 @@ public class Player : TransformObject
 
 	Projectile[] Projectiles = new Projectile[20];
 
-	private ControlTypes CtrlType = ControlTypes.Orbit;
+	public bool IsAlive { get { return _Health > 0;  } }
 
-	public DodgeDir Dir { get; set; }
+	private int HighScore = 0;
 
 	protected override void Awake()
 	{
@@ -97,18 +74,22 @@ public class Player : TransformObject
 
 	void Update()
 	{
-		if (CtrlType == ControlTypes.EightDir)
-			EightDirControls();
-		else
-			OrbitControls();
-
+#if UNITY_ANDROID || UNITY_IPHONE
+		Angle += Input.acceleration.x * OrbitSpeed * Time.deltaTime;
+#else
+		Angle += Input.GetAxis("Horizontal") * OrbitSpeed * Time.deltaTime;
+#endif
 		Score += MoveSpeed * Time.deltaTime;
 
 		FireTimer += Time.deltaTime;
 
-		if (FireTimer > FireDelay)
+		if (FireTimer >= FireDelay)
 		{
+#if UNITY_ANDROID || UNITY_IPHONE
+			if (GetTapped())
+#else
 			if (Input.GetKey(KeyShoot))
+#endif
 				Shoot();
 			else
 				FireTimer = FireDelay;
@@ -130,58 +111,6 @@ public class Player : TransformObject
 		
 		Rigid.MoveRotation(Rot);
 		Rigid.MovePosition(Pos);
-	}
-
-	void OrbitControls()
-	{
-		if (Input.GetKey(KeyLeft))
-			Angle -= OrbitSpeed * Time.deltaTime;
-		else if (Input.GetKey(KeyRight))
-			Angle += OrbitSpeed * Time.deltaTime;
-	}
-
-	void EightDirControls()
-	{
-		Dir = DodgeDir.None;
-		
-		Vector3 Temp = Vector3.zero;
-		
-		if (Input.GetKey(KeyUp))
-		{
-			Dir |= DodgeDir.Up;
-			Temp.y += MoveSpeed * Time.deltaTime;
-
-			if (Temp.y > Radius)
-				Temp.y = Radius;
-		}
-		else if (Input.GetKey(KeyDown))
-		{
-			Dir |= DodgeDir.Down;
-			Temp.y -= MoveSpeed * Time.deltaTime;
-			
-			if (Temp.y < -Radius)
-				Temp.y = -Radius;
-		}
-		
-		if (Input.GetKey(KeyLeft))
-		{
-			Dir |= DodgeDir.Left;
-			Temp.x -= MoveSpeed * Time.deltaTime;
-			
-			if (Temp.x < -Radius)
-				Temp.x = -Radius;
-		}
-		else if (Input.GetKey(KeyRight))
-		{
-			Dir |= DodgeDir.Right;
-			Temp.x += MoveSpeed * Time.deltaTime;
-			
-			if (Temp.x > Radius)
-				Temp.x = Radius;
-		}
-
-		Temp.z = Tr.localPosition.z;
-		Tr.localPosition = Temp;
 	}
 
 	void Shoot()
@@ -225,20 +154,17 @@ public class Player : TransformObject
 
 		GUI.Box(new Rect(Screen.width * 0.05f, Screen.height * 0.05f, Screen.width * 0.2f, Screen.height * 0.15f), string.Concat("Health: ", _Health.ToString(), "\nScore: ", Score.ToString("0")));
 
-		if (Health <= 0)
+		if (!IsAlive)
 		{
 			GUI.skin.box.alignment = TextAnchor.MiddleCenter;
 
 			GUI.Box(new Rect(Screen.width * 0.5f - 200, Screen.height * 0.5f - 220, 400, 100), "GAME OVER");
 
-			if ((int)Score > PlayerPrefs.GetInt("HighScore", 0))
+			if ((int)Score > HighScore)
 				GUI.Box(new Rect(Screen.width * 0.5f - 100, Screen.height * 0.5f - 100, 200, 40), "New High Score!");
 
 			if (GUI.Button(new Rect(Screen.width * 0.5f - 100, Screen.height * 0.5f - 40, 200, 80), "Retry"))
 			{
-				if (Score > PlayerPrefs.GetInt("HighScore", 0))
-					PlayerPrefs.SetInt("HighScore", (int)Score);
-
 				Score = 0.0f;
 				Health = MaxHealth;
 				Application.LoadLevel(Application.loadedLevel);
@@ -256,5 +182,18 @@ public class Player : TransformObject
 	void OnDeath()
 	{
 		Time.timeScale = 0.0f;
+		HighScore = PlayerPrefs.GetInt("HighScore", 0);
+
+		if (Score > HighScore)
+			PlayerPrefs.SetInt("HighScore", (int)Score);
+	}
+
+	bool GetTapped()
+	{
+		foreach (Touch T in Input.touches)
+			if (T.phase == TouchPhase.Began)
+				return true;
+
+		return false;
 	}
 }
